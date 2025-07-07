@@ -8,11 +8,22 @@ document
 function generateSentence(event) {
   event.preventDefault();
 
-  const category = document.querySelector("#category-input").value.trim();
+  const input = document.querySelector("#category-input");
+  const button = document.querySelector("form button");
+  const flag = document.querySelector("#jp-flag");
+  const loader = document.querySelector("#loader");
+
+  const category = input.value.trim();
   if (!category) {
     alert("Please enter a topic.");
     return;
   }
+
+  // Show loading indicators
+  loader.classList.remove("hidden");
+  flag.classList.remove("hidden");
+  input.disabled = true;
+  button.disabled = true;
 
   const prompt = `Give me one beginner-level Japanese sentence about "${category}", including Romaji and English translation. Format it as: JP: [Japanese] | Romaji: [Romaji] | EN: [English].`;
 
@@ -23,7 +34,6 @@ function generateSentence(event) {
     .then((data) => {
       const answer = data.answer;
 
-      // Extract the 3 fields using regex
       const jpMatch = answer.match(/JP:\s?(.*?)(\||$)/i);
       const romajiMatch = answer.match(/Romaji:\s?(.*?)(\||$)/i);
       const enMatch = answer.match(/EN:\s?(.*?)(\||$)/i);
@@ -41,6 +51,13 @@ function generateSentence(event) {
       displayWithTypewriter("#jp", "Error loading sentence");
       displayWithTypewriter("#romaji", "");
       displayWithTypewriter("#en", "");
+    })
+    .finally(() => {
+      // Hide loading indicators
+      loader.classList.add("hidden");
+      flag.classList.add("hidden");
+      input.disabled = false;
+      button.disabled = false;
     });
 }
 
@@ -55,8 +72,3 @@ function displayWithTypewriter(target, text) {
     cursor: "",
   });
 }
-const loader = document.querySelector("#loader");
-loader.classList.remove("hidden"); // Show spinner
-
-// After getting API response or error
-loader.classList.add("hidden"); // Hide spinner
