@@ -55,3 +55,8 @@ function displayWithTypewriter(target, text) {
     cursor: "",
   });
 }
+const loader = document.querySelector("#loader");
+loader.classList.remove("hidden"); // Show spinner
+
+// After getting API response or error
+loader.classList.add("hidden"); // Hide spinner
