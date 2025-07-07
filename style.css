@@ -68,6 +68,39 @@ h1 {
   margin-bottom: 20px;
   color: #333;
 }
+/* Input Field */
+form input[type="text"] {
+  width: 100%;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  outline: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  background-color: #f0f4ff;
+  color: #1f2937;
+  transition: all 0.3s ease;
+}
+
+form input[type="text"]:focus {
+  background-color: #e0e7ff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+form input[type="text"],
+form button {
+  max-width: 300px;
+  align-self: center;
+}
+
+/* Make form elements stack nicely */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+}
+
 
 /* Generate Button */
 form button {
