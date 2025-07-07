@@ -1,5 +1,5 @@
-// Replace this with your actual API URL
-const API_URL = "https://your-api-endpoint.com/api/japanese-sentence";
+const API_KEY = "o451tfe63da40fdab9f02fbc358bc697";
+const API_BASE = "https://api.shecodes.io/ai/v1/generate";
 
 document
   .querySelector("#sentence-generator-form")
@@ -8,39 +8,45 @@ document
 function generateSentence(event) {
   event.preventDefault();
 
-  fetch(API_URL)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Failed to fetch sentence.");
-      }
-      return response.json();
-    })
+  const prompt =
+    "Give me a Japanese beginner sentence with its Romaji and English translation. Format: JP: [sentence] | Romaji: [romaji] | EN: [translation]";
+  const url = `${API_BASE}?prompt=${encodeURIComponent(prompt)}&key=${API_KEY}`;
+
+  fetch(url)
+    .then((response) => response.json())
     .then((data) => {
-      const jp = data.jp || "文が見つかりません";
-      const romaji = data.romaji || "Romaji not available";
-      const en = data.en || "English translation not available";
+      const answer = data.answer;
+
+      // Extract values using regex
+      const jpMatch = answer.match(/JP:\s?(.*?)(\||$)/i);
+      const romajiMatch = answer.match(/Romaji:\s?(.*?)(\||$)/i);
+      const enMatch = answer.match(/EN:\s?(.*?)(\||$)/i);
+
+      const jp = jpMatch ? jpMatch[1].trim() : "Not found";
+      const romaji = romajiMatch ? romajiMatch[1].trim() : "Not found";
+      const en = enMatch ? enMatch[1].trim() : "Not found";
 
       displayWithTypewriter("#jp", jp);
       displayWithTypewriter("#romaji", romaji);
       displayWithTypewriter("#en", en);
     })
     .catch((error) => {
-      console.error("Error fetching sentence:", error);
-      document.querySelector("#jp").textContent = "Error loading sentence.";
-      document.querySelector("#romaji").textContent = "";
-      document.querySelector("#en").textContent = "";
+      console.error("API call failed:", error);
+      displayWithTypewriter("#jp", "Error fetching sentence");
+      displayWithTypewriter("#romaji", "");
+      displayWithTypewriter("#en", "");
     });
 }
 
 function displayWithTypewriter(target, text) {
-  const element = document.querySelector(target);
-  element.innerHTML = "";
+  const el = document.querySelector(target);
+  el.innerHTML = "";
 
-  const typewriter = new Typewriter(element, {
-    loop: false,
-    delay: 35,
+  new Typewriter(el, {
+    strings: text,
+    autoStart: true,
+    delay: 40,
     cursor: "",
   });
-
-  typewriter.typeString(text).start();
 }
+
