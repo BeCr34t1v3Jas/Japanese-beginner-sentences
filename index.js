@@ -8,32 +8,37 @@ document
 function generateSentence(event) {
   event.preventDefault();
 
-  const input = document.querySelector("#category-input");
-  const button = document.querySelector("form button");
-  const flag = document.querySelector("#jp-flag");
+  const category = document.querySelector("#category-input").value.trim();
   const loader = document.querySelector("#loader");
 
-  const category = input.value.trim();
+  // Reset UI
+  displayWithTypewriter("#jp", "");
+  displayWithTypewriter("#romaji", "");
+  displayWithTypewriter("#en", "");
+
   if (!category) {
     alert("Please enter a topic.");
     return;
   }
 
-  // Show loading indicators
-  loader.classList.remove("hidden");
-  flag.classList.remove("hidden");
-  input.disabled = true;
-  button.disabled = true;
+  loader.classList.remove("hidden"); // Show spinner
 
   const prompt = `Give me one beginner-level Japanese sentence about "${category}", including Romaji and English translation. Format it as: JP: [Japanese] | Romaji: [Romaji] | EN: [English].`;
-
   const url = `${API_URL}?prompt=${encodeURIComponent(prompt)}&context=Beginner-friendly, short sentence.&key=${API_KEY}`;
 
   fetch(url)
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not OK");
+      }
+      return response.json();
+    })
     .then((data) => {
+      loader.classList.add("hidden"); // Hide spinner
+
       const answer = data.answer;
 
+      // Extract using RegEx
       const jpMatch = answer.match(/JP:\s?(.*?)(\||$)/i);
       const romajiMatch = answer.match(/Romaji:\s?(.*?)(\||$)/i);
       const enMatch = answer.match(/EN:\s?(.*?)(\||$)/i);
@@ -47,17 +52,12 @@ function generateSentence(event) {
       displayWithTypewriter("#en", en);
     })
     .catch((error) => {
+      loader.classList.add("hidden"); // Always hide spinner on error
       console.error("API Error:", error);
-      displayWithTypewriter("#jp", "Error loading sentence");
-      displayWithTypewriter("#romaji", "");
+
+      displayWithTypewriter("#jp", "⚠️ Error.");
+      displayWithTypewriter("#romaji", "Try it again later.");
       displayWithTypewriter("#en", "");
-    })
-    .finally(() => {
-      // Hide loading indicators
-      loader.classList.add("hidden");
-      flag.classList.add("hidden");
-      input.disabled = false;
-      button.disabled = false;
     });
 }
 
